@@ -30,6 +30,7 @@ Rules:
 - When generating insights, observations and actionable items do not bring up metrics that are empty, have a value of 0 or that you marked N/A.
 - No categories can have empty text, source directly from the given data and if no data is available for a metric, mark as N/A.
 - Include any punctation required e.g. $, ,, %. This means that numbers should have commas where relevant e.g. 1000000 should be 1,000,000
+- Any numbers with decimals should be rounded to 2dp
 - Define the JSON section with a clear delimiter: \`\`\`JSON_START\`\`\` and \`\`\`JSON_END\`\`\`.
 - Do not include explanations, only JSON.
 

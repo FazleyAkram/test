@@ -398,7 +398,7 @@ return (
           {/* Main metrics */}
           {!reportsLoading && !summaryLoading && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div onClick={() => generateMetricsMessage("total sessions", getCategoryData(generatedSummaryJSON, "categories", "Total Sessions", "metric"))} className="cursor-pointer transform transition hover:scale-105" style={{ background: 'linear-gradient(135deg, #365B5E, #A3BCBA)', borderRadius: '12px', padding: '1.5rem', border: '1px solid #E5E5E5' }}>
+              <div onClick={() => {if (!reportsToUse) return; generateMetricsMessage("total sessions", getCategoryData(generatedSummaryJSON, "categories", "Total Sessions", "metric"))}} className="cursor-pointer transform transition hover:scale-105" style={{ background: 'linear-gradient(135deg, #365B5E, #A3BCBA)', borderRadius: '12px', padding: '1.5rem', border: '1px solid #E5E5E5' }}>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -410,7 +410,7 @@ return (
                 <div className="text-2xl font-bold text-white">{getCategoryData(generatedSummaryJSON, "categories", "Total Sessions", "metric")}</div>
               </div>
 
-              <div onClick={() => generateMetricsMessage("total revenue", getCategoryData(generatedSummaryJSON, "categories", "Total Revenue", "metric"))} className="cursor-pointer transform transition hover:scale-105" style={{ background: 'linear-gradient(135deg, #E59853, #FF6F61)', borderRadius: '12px', padding: '1.5rem', border: '1px solid #E5E5E5' }}>
+              <div onClick={() => {if (!reportsToUse) return; generateMetricsMessage("total revenue", getCategoryData(generatedSummaryJSON, "categories", "Total Revenue", "metric"))}} className="cursor-pointer transform transition hover:scale-105" style={{ background: 'linear-gradient(135deg, #E59853, #FF6F61)', borderRadius: '12px', padding: '1.5rem', border: '1px solid #E5E5E5' }}>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -422,7 +422,7 @@ return (
                 <div className="text-2xl font-bold text-white">{getCategoryData(generatedSummaryJSON, "categories", "Total Revenue", "metric")}</div>
               </div>
 
-              <div onClick={() => generateMetricsMessage("conversion rate", getCategoryData(generatedSummaryJSON, "categories", "Conversion Rate", "metric"))} className="cursor-pointer transform transition hover:scale-105" style={{ background: 'linear-gradient(135deg, #365B5E, #A3BCBA)', borderRadius: '12px', padding: '1.5rem', border: '1px solid #E5E5E5' }}>
+              <div onClick={() => {if (!reportsToUse) return; generateMetricsMessage("conversion rate", getCategoryData(generatedSummaryJSON, "categories", "Conversion Rate", "metric"))}} className="cursor-pointer transform transition hover:scale-105" style={{ background: 'linear-gradient(135deg, #365B5E, #A3BCBA)', borderRadius: '12px', padding: '1.5rem', border: '1px solid #E5E5E5' }}>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -434,7 +434,7 @@ return (
                 <div className="text-2xl font-bold text-white">{getCategoryData(generatedSummaryJSON, "categories", "Conversion Rate", "metric")}</div>
               </div>
 
-              <div onClick={() => generateMetricsMessage("bounce rate", getCategoryData(generatedSummaryJSON, "categories", "Bounce Rate", "metric"))} className="cursor-pointer transform transition hover:scale-105" style={{ background: 'linear-gradient(135deg, #E59853, #FF6F61)', borderRadius: '12px', padding: '1.5rem', border: '1px solid #E5E5E5' }}>
+              <div onClick={() => {if (!reportsToUse) return; generateMetricsMessage("bounce rate", getCategoryData(generatedSummaryJSON, "categories", "Bounce Rate", "metric"))}} className="cursor-pointer transform transition hover:scale-105" style={{ background: 'linear-gradient(135deg, #E59853, #FF6F61)', borderRadius: '12px', padding: '1.5rem', border: '1px solid #E5E5E5' }}>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -454,7 +454,7 @@ return (
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-gray-800">Observations</h3>
               <div className="space-y-3">
-                <button onClick={() => generateInsightsMessage("observation", getCategoryData(generatedSummaryJSON, "insights", "Observations", "insight1"))} className="w-full text-left p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-200">
+                <button onClick={() => generateInsightsMessage("observation", getCategoryData(generatedSummaryJSON, "insights", "Observations", "insight1"))} disabled={!reportsToUse} className="w-full text-left p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-200">
                     <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                     <div>
@@ -462,7 +462,7 @@ return (
                     </div>
                   </div>
                 </button>
-                <button onClick={() => generateInsightsMessage("observation", getCategoryData(generatedSummaryJSON, "insights", "Observations", "insight2"))} className="w-full text-left p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-200">
+                <button onClick={() => generateInsightsMessage("observation", getCategoryData(generatedSummaryJSON, "insights", "Observations", "insight2"))} disabled={!reportsToUse} className="w-full text-left p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-200">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                     <div>
@@ -470,7 +470,7 @@ return (
                     </div>
                   </div>
                 </button>
-                <button onClick={() => generateInsightsMessage("observation", getCategoryData(generatedSummaryJSON, "insights", "Observations", "insight3"))} className="w-full text-left p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-200">
+                <button onClick={() => generateInsightsMessage("observation", getCategoryData(generatedSummaryJSON, "insights", "Observations", "insight3"))} disabled={!reportsToUse} className="w-full text-left p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-200">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
                     <div>
@@ -484,7 +484,7 @@ return (
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-gray-800">Key Insights</h3>
               <div className="space-y-3">
-                <button onClick={() => generateInsightsMessage("key insight", getCategoryData(generatedSummaryJSON, "insights", "Key Insights", "insight1"))} className="w-full text-left p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-200">
+                <button onClick={() => generateInsightsMessage("key insight", getCategoryData(generatedSummaryJSON, "insights", "Key Insights", "insight1"))} disabled={!reportsToUse} className="w-full text-left p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-200">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                     <div>
@@ -492,7 +492,7 @@ return (
                     </div>
                   </div>
                 </button>
-                <button onClick={() => generateInsightsMessage("key insight", getCategoryData(generatedSummaryJSON, "insights", "Key Insights", "insight2"))} className="w-full text-left p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-200">
+                <button onClick={() => generateInsightsMessage("key insight", getCategoryData(generatedSummaryJSON, "insights", "Key Insights", "insight2"))} disabled={!reportsToUse} className="w-full text-left p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-200">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                     <div>
@@ -500,7 +500,7 @@ return (
                     </div>
                   </div>
                 </button>
-                <button onClick={() => generateInsightsMessage("key insight", getCategoryData(generatedSummaryJSON, "insights", "Key Insights", "insight3"))} className="w-full text-left p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-200">
+                <button onClick={() => generateInsightsMessage("key insight", getCategoryData(generatedSummaryJSON, "insights", "Key Insights", "insight3"))} disabled={!reportsToUse} className="w-full text-left p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-200">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
                     <div>
@@ -519,7 +519,7 @@ return (
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-gray-800">Actionable Items</h3>
               <div className="space-y-3">
-                <button onClick={() => generateInsightsMessage("actionable item", getCategoryData(generatedSummaryJSON, "insights", "Actionable Items", "insight1"))} className="w-full text-left p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-200">
+                <button onClick={() => generateInsightsMessage("actionable item", getCategoryData(generatedSummaryJSON, "insights", "Actionable Items", "insight1"))} disabled={!reportsToUse} className="w-full text-left p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-200">
                     <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                     <div>
@@ -527,7 +527,7 @@ return (
                     </div>
                   </div>
                 </button>
-                <button onClick={() => generateInsightsMessage("actionable item", getCategoryData(generatedSummaryJSON, "insights", "Actionable Items", "insight2"))} className="w-full text-left p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-200">
+                <button onClick={() => generateInsightsMessage("actionable item", getCategoryData(generatedSummaryJSON, "insights", "Actionable Items", "insight2"))} disabled={!reportsToUse} className="w-full text-left p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-200">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                     <div>
@@ -535,7 +535,7 @@ return (
                     </div>
                   </div>
                 </button>
-                <button onClick={() => generateInsightsMessage("actionable item", getCategoryData(generatedSummaryJSON, "insights", "Actionable Items", "insight3"))} className="w-full text-left p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-200">
+                <button onClick={() => generateInsightsMessage("actionable item", getCategoryData(generatedSummaryJSON, "insights", "Actionable Items", "insight3"))} disabled={!reportsToUse} className="w-full text-left p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-200">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
                     <div>
@@ -553,7 +553,7 @@ return (
             <div className="mt-8 flex flex-wrap gap-4">
               <button
                 onClick={handleExportPDF}
-                disabled={exporting}
+                disabled={exporting || !reportsToUse}
                 style={{
                   padding: '0.75rem 1.5rem',
                   background: 'linear-gradient(135deg, #365B5E, #A3BCBA)',
@@ -605,6 +605,7 @@ return (
               <div className="relative">
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
+                  disabled={!reportsToUse}
                   className="p-2 rounded-full hover:bg-white/20 text-white"
                 >
                   <span className="text-2xl">⋯</span>
@@ -643,7 +644,7 @@ return (
           
           {/* Chat Messages */}
           <div className="h-96 overflow-y-auto p-6 space-y-4 bg-gray-50">
-            {!reportsLoading && !summaryLoading && !messagesLoading &&
+            {!reportsLoading && !summaryLoading && !messagesLoading && reportsToUse &&
               <div className="text-center text-gray-500 py-8">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -773,11 +774,11 @@ return (
                 className="flex-1 p-3 border border-gray-300 rounded-xl resize-none transition-all text-gray-700"
                 style={{ outline: 'none' }}
                 rows="2"
-                disabled={botLoading || reportsLoading || summaryLoading || messagesLoading}
+                disabled={botLoading || reportsLoading || summaryLoading || messagesLoading || !reportsToUse}
               />
               <button
                 type="submit"
-                disabled={!inputMessage.trim() || botLoading || reportsLoading || summaryLoading || messagesLoading}
+                disabled={!inputMessage.trim() || botLoading || reportsLoading || summaryLoading || messagesLoading || !reportsToUse}
                 style={{
                   padding: '0.75rem 1.5rem',
                   background: 'linear-gradient(135deg, #E59853, #FF6F61)',
