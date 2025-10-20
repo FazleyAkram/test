@@ -1,0 +1,663 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int           @id @default(autoincrement())
+  email            String        @unique
+  passwordHash     String
+  firstName        String?
+  lastName         String?
+  company          String?
+  role             UserRole      @default(MARKETER)
+  isApproved       Boolean       @default(false)
+  isAdmin          Boolean       @default(false)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  isSuperAdmin     Boolean       @default(false)
+  alerts           Alert[]
+  apiKeys          ApiKey[]
+  campaigns        Campaign[]
+  chatMessages     ChatMessage[]
+  dashboards       Dashboard[]
+  dataSources      DataSource[]
+  exports          Export[]
+  insights         Insight[]
+  reports          Report[]
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    Int
+  message   String
+  response  String
+  type      String   @default("USER_QUERY")
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  source    String   @default("WINDOW")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Report    Report[] @relation("MessageReports")
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([type])
+  @@index([source])
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String
+  key         String    @unique
+  provider    Provider
+  isActive    Boolean   @default(true)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  lastUsed    DateTime?
+  permissions Json?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+}
+
+model DataSource {
+  id         String       @id @default(cuid())
+  name       String
+  provider   Provider
+  isActive   Boolean      @default(true)
+  config     Json
+  lastSync   DateTime?
+  syncStatus SyncStatus   @default(PENDING)
+  userId     Int
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  imports    DataImport[]
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  metrics    Metric[]
+
+  @@unique([userId, provider])
+}
+
+model DataImport {
+  id                   String                @id @default(cuid())
+  sourceId             String
+  fileName             String?
+  importType           ImportType
+  status               ImportStatus          @default(PENDING)
+  recordCount          Int?
+  startTime            DateTime              @default(now())
+  endTime              DateTime?
+  errorLog             String?
+  metadata             Json?
+  campaigns            Campaign[]
+  dataSource           DataSource            @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  events               Event[]
+  insights             Insight[]
+  marketingAnalytics   MarketingAnalytics[]
+  marketingBenchmarks  MarketingBenchmark[]
+  marketingCampaigns   MarketingCampaign[]
+  marketingConversions MarketingConversion[]
+  marketingEvents      MarketingEvent[]
+  marketingSessions    MarketingSession[]
+  metrics              Metric[]
+
+  @@index([startTime])
+  @@index([status])
+}
+
+model Campaign {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  type        CampaignType
+  status      CampaignStatus @default(DRAFT)
+  startDate   DateTime?
+  endDate     DateTime?
+  budget      Decimal?       @db.Decimal(10, 2)
+  currency    String         @default("USD")
+  tags        String[]
+  metadata    Json?
+  userId      Int
+  importId    String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  audiences   Audience[]
+  import      DataImport?    @relation(fields: [importId], references: [id])
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creatives   Creative[]
+  events      Event[]
+  insights    Insight[]
+  metrics     Metric[]
+  reports     Report[]
+
+  @@index([startDate])
+  @@index([status])
+  @@index([type])
+}
+
+model Metric {
+  id         String      @id @default(cuid())
+  name       String
+  value      Decimal     @db.Decimal(15, 4)
+  unit       String?
+  metricType MetricType
+  sourceId   String
+  importId   String?
+  campaignId String?
+  date       DateTime
+  dimensions Json?
+  metadata   Json?
+  campaign   Campaign?   @relation(fields: [campaignId], references: [id])
+  import     DataImport? @relation(fields: [importId], references: [id])
+  dataSource DataSource  @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([date])
+  @@index([metricType])
+  @@index([campaignId])
+}
+
+model Event {
+  id         String      @id @default(cuid())
+  name       String
+  category   String?
+  action     String?
+  label      String?
+  value      Decimal?    @db.Decimal(10, 2)
+  timestamp  DateTime
+  sessionId  String?
+  userId     String?
+  campaignId String?
+  importId   String?
+  properties Json?
+  metadata   Json?
+  campaign   Campaign?   @relation(fields: [campaignId], references: [id])
+  import     DataImport? @relation(fields: [importId], references: [id])
+
+  @@index([timestamp])
+  @@index([name])
+  @@index([campaignId])
+  @@index([sessionId])
+}
+
+model Audience {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  criteria    Json
+  size        Int?
+  isActive    Boolean   @default(true)
+  campaignId  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  campaign    Campaign? @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([isActive])
+}
+
+model Creative {
+  id         String       @id @default(cuid())
+  name       String
+  type       CreativeType
+  url        String?
+  thumbnail  String?
+  dimensions String?
+  fileSize   Int?
+  tags       String[]
+  metadata   Json?
+  campaignId String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  campaign   Campaign?    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([type])
+}
+
+model Dashboard {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  layout      Json
+  isPublic    Boolean  @default(false)
+  userId      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([isPublic])
+}
+
+model Insight {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  type        InsightType
+  priority    Priority    @default(MEDIUM)
+  category    String?
+  data        Json?
+  actions     String[]
+  isRead      Boolean     @default(false)
+  isActioned  Boolean     @default(false)
+  userId      Int
+  campaignId  String?
+  importId    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  campaign    Campaign?   @relation(fields: [campaignId], references: [id])
+  import      DataImport? @relation(fields: [importId], references: [id])
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([type])
+  @@index([priority])
+  @@index([isRead])
+}
+
+model Alert {
+  id         String    @id @default(cuid())
+  title      String
+  message    String
+  type       AlertType
+  severity   Severity  @default(INFO)
+  isRead     Boolean   @default(false)
+  isResolved Boolean   @default(false)
+  userId     Int
+  metadata   Json?
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([type])
+  @@index([severity])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model AIJob {
+  id          String      @id @default(uuid())
+  type        AIJobType
+  status      AIJobStatus @default(PENDING)
+  input       Json?
+  output      Json?
+  error       String?
+  progress    Int         @default(0)
+  priority    Priority    @default(MEDIUM)
+  retryCount  Int         @default(0)
+  maxRetries  Int         @default(3)
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([status])
+  @@index([type])
+  @@index([priority])
+  @@index([createdAt])
+}
+
+model Export {
+  id          String       @id @default(cuid())
+  name        String
+  type        ExportType
+  format      ExportFormat
+  status      ExportStatus @default(PENDING)
+  url         String?
+  expiresAt   DateTime?
+  metadata    Json?
+  userId      Int
+  createdAt   DateTime     @default(now())
+  completedAt DateTime?
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model MarketingSession {
+  id                 String      @id @default(cuid())
+  periodStart        DateTime? // Start of aggregation period (optional for backward compatibility)
+  periodEnd          DateTime? // End of aggregation period (optional for backward compatibility)
+  periodType         PeriodType? // DAILY, WEEKLY, MONTHLY, QUARTERLY (optional for backward compatibility)
+  date               DateTime
+  sessions           Int
+  users              Int
+  pageViews          Int
+  avgSessionDuration Float
+  bounceRate         Float
+  conversions        Int
+  importId           String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  revenue            Decimal?    @db.Decimal(10, 2)
+  import             DataImport? @relation(fields: [importId], references: [id])
+
+  @@index([date])
+  @@index([periodStart])
+  @@index([periodType])
+  @@index([importId])
+}
+
+model MarketingCampaign {
+  id          String      @id @default(cuid())
+  utmCampaign String
+  utmSource   String
+  startDate   DateTime
+  endDate     DateTime
+  importId    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  conversions Int?
+  revenue     Decimal?    @db.Decimal(10, 2)
+  sessions    Int?
+  utmMedium   String?
+  import      DataImport? @relation(fields: [importId], references: [id])
+
+  @@index([utmCampaign])
+  @@index([startDate])
+  @@index([endDate])
+}
+
+model MarketingEvent {
+  id                String      @id @default(cuid())
+  periodStart       DateTime? // Start of aggregation period (optional for backward compatibility)
+  periodEnd         DateTime? // End of aggregation period (optional for backward compatibility)
+  periodType        PeriodType? // DAILY, WEEKLY, MONTHLY, QUARTERLY (optional for backward compatibility)
+  date              DateTime
+  eventName         String
+  sessionsWithEvent Int
+  eventCount        Int
+  importId          String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  import            DataImport? @relation(fields: [importId], references: [id])
+
+  @@index([date])
+  @@index([periodStart])
+  @@index([periodType])
+  @@index([eventName])
+  @@index([importId])
+}
+
+model MarketingConversion {
+  id              String      @id @default(cuid())
+  periodStart    DateTime? // Start of aggregation period (optional for backward compatibility)
+  periodEnd      DateTime? // End of aggregation period (optional for backward compatibility)
+  periodType     PeriodType? // DAILY, WEEKLY, MONTHLY, QUARTERLY (optional for backward compatibility)
+  date            DateTime
+  conversionName  String
+  conversions     Int
+  revenue         Decimal?    @db.Decimal(10, 2)
+  importId        String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  conversionType  String?
+  conversionValue Decimal?    @db.Decimal(10, 2)
+  import          DataImport? @relation(fields: [importId], references: [id])
+
+  @@index([date])
+  @@index([periodStart])
+  @@index([periodType])
+  @@index([conversionName])
+  @@index([importId])
+}
+
+model MarketingBenchmark {
+  id          String      @id @default(cuid())
+  metric      String
+  targetValue Decimal     @db.Decimal(10, 4)
+  unit        String
+  importId    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  import      DataImport? @relation(fields: [importId], references: [id])
+
+  @@index([metric])
+  @@index([importId])
+}
+
+model MarketingAnalytics {
+  id                 String      @id @default(cuid())
+  date               DateTime
+  totalSessions      Int
+  totalUsers         Int
+  totalPageViews     Int
+  avgSessionDuration Float
+  avgBounceRate      Float
+  totalConversions   Int
+  totalRevenue       Decimal     @db.Decimal(10, 2)
+  conversionRate     Float
+  revenuePerSession  Decimal     @db.Decimal(10, 2)
+  importId           String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  import             DataImport? @relation(fields: [importId], references: [id])
+
+  @@index([date])
+  @@index([importId])
+}
+
+model Report {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String?
+  type        ReportType
+  content     Json?
+  filters     Json?
+  schedule    String?
+  isScheduled Boolean       @default(false)
+  lastRun     DateTime?
+  nextRun     DateTime?
+  userId      Int
+  campaignId  String?
+  isPublic    Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  filePath    String
+  campaign    Campaign?     @relation(fields: [campaignId], references: [id])
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ChatMessage ChatMessage[] @relation("MessageReports")
+
+  @@index([type])
+  @@index([isScheduled])
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  MARKETER
+  ANALYST
+  VIEWER
+}
+
+enum Provider {
+  GOOGLE_ANALYTICS
+  META_PIXELS
+  GOOGLE_ADS
+  LINKEDIN_ADS
+  TWITTER_ADS
+  TIKTOK_ADS
+  SHOPIFY
+  MAILCHIMP
+  HUBSPOT
+  CUSTOM
+}
+
+enum SyncStatus {
+  PENDING
+  SYNCING
+  SUCCESS
+  FAILED
+  DISABLED
+}
+
+enum PeriodType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+}
+
+enum ImportType {
+  GOOGLE_ANALYTICS
+  META_PIXELS
+  GOOGLE_ADS
+  LINKEDIN_ADS
+  TWITTER_ADS
+  TIKTOK_ADS
+  SHOPIFY
+  MAILCHIMP
+  HUBSPOT
+  MANUAL_UPLOAD
+  API_SYNC
+}
+
+enum ImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  PARTIAL
+}
+
+enum CampaignType {
+  DISPLAY
+  SEARCH
+  SOCIAL
+  VIDEO
+  EMAIL
+  AFFILIATE
+  INFLUENCER
+  CONTENT
+  PR
+  OTHER
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum MetricType {
+  IMPRESSIONS
+  CLICKS
+  CONVERSIONS
+  REVENUE
+  COST
+  CTR
+  CPC
+  CPM
+  CPA
+  ROAS
+  SESSIONS
+  USERS
+  PAGE_VIEWS
+  BOUNCE_RATE
+  SESSION_DURATION
+  CUSTOM
+}
+
+enum CreativeType {
+  IMAGE
+  VIDEO
+  CAROUSEL
+  STORY
+  BANNER
+  LOGO
+  ICON
+  DOCUMENT
+  OTHER
+}
+
+enum ReportType {
+  PERFORMANCE
+  CAMPAIGN
+  AUDIENCE
+  CONVERSION
+  REVENUE
+  COMPETITIVE
+  CUSTOM
+}
+
+enum InsightType {
+  PERFORMANCE
+  OPPORTUNITY
+  RISK
+  TREND
+  COMPETITIVE
+  RECOMMENDATION
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AlertType {
+  PERFORMANCE
+  BUDGET
+  ERROR
+  SUCCESS
+  WARNING
+  INFO
+}
+
+enum Severity {
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+enum AIJobType {
+  INSIGHT_GENERATION
+  PERFORMANCE_ANALYSIS
+  AUDIENCE_SEGMENTATION
+  CAMPAIGN_OPTIMIZATION
+  COMPETITIVE_ANALYSIS
+  TREND_PREDICTION
+  CONTENT_OPTIMIZATION
+  BUDGET_OPTIMIZATION
+}
+
+enum AIJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  RETRYING
+}
+
+enum ExportType {
+  REPORT
+  DATA
+  METRICS
+  INSIGHTS
+  AUDIENCE
+}
+
+enum ExportFormat {
+  PDF
+  CSV
+  EXCEL
+  JSON
+  XML
+}
+
+enum ExportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
